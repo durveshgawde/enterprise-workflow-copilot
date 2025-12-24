@@ -13,12 +13,15 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "overrides": {
+    "glob": "^10.4.6"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.292.0",
-    "next": "^14.0.0",
+    "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.6.0",
