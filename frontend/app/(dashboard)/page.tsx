@@ -7,8 +7,8 @@ import { Plus, TrendingUp } from 'lucide-react'
 export default function DashboardPage() {
   const { workflows, loading } = useWorkflows('default-org')
 
-  const completedWorkflows = workflows.filter((w: any) => w.status === 'completed').length
-  const activeWorkflows = workflows.filter((w: any) => w.status === 'active').length
+  const completedWorkflows = workflows.filter((w) => w.status === 'completed').length
+  const activeWorkflows = workflows.filter((w) => w.status === 'active').length
 
   return (
     <div>
@@ -67,7 +67,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {workflows.slice(0, 5).map((workflow: any) => (
+            {workflows.slice(0, 5).map((workflow) => (
               <Link
                 key={workflow.id}
                 href={`/dashboard/workflows/${workflow.id}`}

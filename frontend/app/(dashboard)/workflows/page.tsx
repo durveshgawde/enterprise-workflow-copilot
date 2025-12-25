@@ -9,7 +9,7 @@ export default function WorkflowsPage() {
   const { workflows, loading } = useWorkflows('default-org')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const filteredWorkflows = workflows.filter((w: any) =>
+  const filteredWorkflows = workflows.filter((w) =>
     statusFilter === 'all' ? true : w.status === statusFilter
   )
 
@@ -60,7 +60,7 @@ export default function WorkflowsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredWorkflows.map((workflow: any) => (
+                {filteredWorkflows.map((workflow) => (
                   <tr key={workflow.id} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <Link
@@ -95,3 +95,4 @@ export default function WorkflowsPage() {
     </div>
   )
 }
+

@@ -32,7 +32,7 @@ export default function ActivityPage() {
                 </tr>
               </thead>
               <tbody>
-                {activities.map((activity: any) => (
+                {activities.map((activity) => (
                   <tr key={activity.id} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
