@@ -17,6 +17,12 @@ export default function WorkflowDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [expandedSteps, setExpandedSteps] = useState<string[]>([])
+  const [showAddStep, setShowAddStep] = useState(false)
+  const [newStepTitle, setNewStepTitle] = useState('')
+  const [newStepDescription, setNewStepDescription] = useState('')
+  const [addingStep, setAddingStep] = useState(false)
+  const [newComment, setNewComment] = useState('')
+  const [addingComment, setAddingComment] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -96,11 +102,66 @@ export default function WorkflowDetailPage() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-6 border-b flex justify-between items-center">
             <h2 className="text-xl font-bold">Steps ({steps.length})</h2>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
-              <Plus size={20} />
-              Add Step
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowAddStep((s) => !s)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Plus size={20} />
+                {showAddStep ? 'Cancel' : 'Add Step'}
+              </button>
+            </div>
           </div>
+
+          {showAddStep && (
+            <div className="p-6 border-b bg-gray-50">
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={newStepTitle}
+                  onChange={(e) => setNewStepTitle(e.target.value)}
+                  placeholder="Step title"
+                  className="w-full px-3 py-2 border rounded"
+                />
+                <textarea
+                  value={newStepDescription}
+                  onChange={(e) => setNewStepDescription(e.target.value)}
+                  placeholder="Step description"
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      if (!newStepTitle) return
+                      setAddingStep(true)
+                      setError('')
+                      try {
+                        const res = await stepApi.create(workflowId, {
+                          title: newStepTitle,
+                          description: newStepDescription,
+                          step_order: steps.length,
+                        })
+                        const created = res.data ?? null
+                        if (created) setSteps((p) => [...p, created])
+                        setNewStepTitle('')
+                        setNewStepDescription('')
+                        setShowAddStep(false)
+                      } catch (err: any) {
+                        setError(err.message || 'Failed to add step')
+                      } finally {
+                        setAddingStep(false)
+                      }
+                    }}
+                    disabled={addingStep}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {addingStep ? 'Adding...' : 'Add Step'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="divide-y">
             {steps.map((step) => (
@@ -192,11 +253,36 @@ export default function WorkflowDetailPage() {
             ))}
           </div>
 
-          <input
-            type="text"
-            placeholder="Add comment..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Add comment..."
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+            />
+            <button
+              onClick={async () => {
+                if (!newComment) return
+                setAddingComment(true)
+                setError('')
+                try {
+                  const res = await commentApi.create(workflowId, { content: newComment })
+                  const created = res.data ?? null
+                  if (created) setComments((p) => [...p, created])
+                  setNewComment('')
+                } catch (err: any) {
+                  setError(err.message || 'Failed to add comment')
+                } finally {
+                  setAddingComment(false)
+                }
+              }}
+              disabled={addingComment}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {addingComment ? 'Posting...' : 'Post'}
+            </button>
+          </div>
         </div>
 
         {/* Activity */}

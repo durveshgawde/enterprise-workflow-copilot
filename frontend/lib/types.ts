@@ -20,11 +20,12 @@ export interface Workflow {
   created_by: string
   title: string
   description?: string
-  status: 'active' | 'completed' | 'archived'
+  status: 'active' | 'completed' | 'archived' | 'draft'
   created_at: string
   updated_at: string
   steps?: WorkflowStep[]
   comments_count?: number
+  step_count?: number
 }
 
 export interface WorkflowStep {
@@ -33,7 +34,8 @@ export interface WorkflowStep {
   title: string
   description?: string
   step_order: number
-  status: 'pending' | 'in_progress' | 'completed'
+  order?: number
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked'
   assigned_to?: string
   context_url?: string
   context_text?: string
@@ -48,6 +50,7 @@ export interface Comment {
   workflow_id: string
   step_id?: string
   created_by: string
+  created_by_name?: string
   content: string
   created_at: string
   updated_at: string

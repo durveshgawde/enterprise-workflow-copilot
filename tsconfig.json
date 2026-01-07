@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["frontend/*", "./*"],
+      "@/lib/*": ["lib/*"],
+      "@/components/*": ["components/*"]
+    },
+    "moduleResolution": "node"
+  },
+  "include": ["frontend/**/*", "**/*.ts", "**/*.tsx"]
+}
