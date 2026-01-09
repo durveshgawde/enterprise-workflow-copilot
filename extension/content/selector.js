@@ -90,15 +90,59 @@ const SelectionMode = {
             chrome.runtime.sendMessage({ action: 'selectionModeCancelled' });
         });
 
-        document.getElementById('wst-generate').addEventListener('click', () => {
+        document.getElementById('wst-generate').addEventListener('click', async () => {
             const selection = window.getSelection().toString().trim();
             if (selection) {
-                // Send selection to background for processing
-                chrome.runtime.sendMessage({
-                    action: 'generateFromSelection',
-                    content: selection
-                });
-                this.disable();
+                const generateBtn = document.getElementById('wst-generate');
+                generateBtn.textContent = '⏳ Generating...';
+                generateBtn.disabled = true;
+
+                try {
+                    // Check if extension context is still valid
+                    if (!chrome.runtime?.id) {
+                        throw new Error('Extension reloaded. Please refresh the page.');
+                    }
+
+                    // Send selection to background for processing
+                    const result = await new Promise((resolve, reject) => {
+                        chrome.runtime.sendMessage({
+                            action: 'generateAndSave',
+                            content: selection
+                        }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                reject(new Error(chrome.runtime.lastError.message || 'Connection failed. Refresh the page.'));
+                            } else {
+                                resolve(response);
+                            }
+                        });
+                    });
+
+                    if (result && result.success) {
+                        generateBtn.textContent = '✅ Saved!';
+                        // Show success notification
+                        this.showNotification('Workflow saved! Opening dashboard...');
+
+                        // Open dashboard after short delay
+                        setTimeout(() => {
+                            window.open(result.dashboardUrl || 'http://localhost:3000/workflows', '_blank');
+                        }, 1000);
+                    } else {
+                        generateBtn.textContent = '❌ Failed';
+                        this.showNotification('Error: ' + (result?.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('[Workflow Extension] Error:', error);
+                    generateBtn.textContent = '❌ Error';
+
+                    // Show helpful error message
+                    let errorMsg = error.message;
+                    if (errorMsg.includes('Receiving end does not exist') || errorMsg.includes('Connection failed')) {
+                        errorMsg = 'Extension reloaded. Please refresh this page and try again.';
+                    }
+                    this.showNotification(errorMsg);
+                }
+
+                setTimeout(() => this.disable(), 2000);
             }
         });
     },
@@ -173,6 +217,48 @@ const SelectionMode = {
                 self.disable();
             }
         }
+    },
+
+    /**
+     * Show notification to user
+     */
+    showNotification(message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.id = 'workflow-notification';
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2147483647;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        `;
+        notification.textContent = message;
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 3000);
     },
 
     /**

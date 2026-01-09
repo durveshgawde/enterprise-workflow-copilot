@@ -40,6 +40,10 @@ async function handleMessage(request, sender) {
             // Content script sent a selection - generate workflow
             return await generateWorkflow(request.content);
 
+        case 'generateAndSave':
+            // Generate and immediately save workflow
+            return await generateAndSaveWorkflow(request.content);
+
         case 'selectionModeCancelled':
             // Just acknowledge
             return { success: true };
@@ -142,6 +146,64 @@ async function saveWorkflow(workflow) {
             steps: workflow.steps
         })
     });
+}
+
+/**
+ * Generate workflow and immediately save it
+ */
+async function generateAndSaveWorkflow(rawText) {
+    console.log('[Background] Generating and saving workflow...');
+
+    try {
+        // Step 1: Generate workflow
+        const generateResult = await apiRequest('/ai/convert', {
+            method: 'POST',
+            body: JSON.stringify({ raw_text: rawText })
+        });
+
+        if (!generateResult.success || !generateResult.workflow) {
+            return {
+                success: false,
+                error: generateResult.error || 'Failed to generate workflow'
+            };
+        }
+
+        const workflow = generateResult.workflow;
+        console.log('[Background] Generated:', workflow.title);
+
+        // Step 2: Save workflow immediately
+        const saveResult = await apiRequest('/ai/save-workflow', {
+            method: 'POST',
+            body: JSON.stringify({
+                title: workflow.title,
+                description: workflow.description,
+                steps: workflow.steps
+            })
+        });
+
+        if (!saveResult.success) {
+            return {
+                success: false,
+                error: saveResult.error || 'Failed to save workflow'
+            };
+        }
+
+        console.log('[Background] Saved workflow ID:', saveResult.workflow_id);
+
+        return {
+            success: true,
+            workflow_id: saveResult.workflow_id,
+            workflow: workflow,
+            dashboardUrl: 'http://localhost:3000/workflows'
+        };
+
+    } catch (error) {
+        console.error('[Background] Generate and save error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
 }
 
 /**

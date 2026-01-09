@@ -1,75 +1,71 @@
 /**
  * Authentication Handler
- * Handles Supabase login and JWT storage
+ * Uses Supabase REST API directly (no SDK needed)
+ * This avoids CSP issues with external CDN scripts
  */
-
-// Load config from separate file
-// CONFIG is loaded from config.js via script tag in auth.html
-
-// Initialize Supabase client
-const { createClient } = supabase;
-let supabaseClient = null;
-
-function initSupabase() {
-    if (typeof CONFIG === 'undefined') {
-        console.error('[Auth] CONFIG not loaded. Make sure config.js exists.');
-        showError('Configuration missing. See README for setup instructions.');
-        return false;
-    }
-
-    if (CONFIG.SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-        showError('Please configure your Supabase credentials in extension/config.js');
-        return false;
-    }
-
-    supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    return true;
-}
 
 const loginForm = document.getElementById('loginForm');
 const loginBtn = document.getElementById('loginBtn');
 const errorMessage = document.getElementById('errorMessage');
 
+// Check config on load
+if (typeof CONFIG === 'undefined') {
+    showError('Configuration missing. Copy config.example.js to config.js and add your credentials.');
+}
+
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (!initSupabase()) return;
+    if (typeof CONFIG === 'undefined') {
+        showError('Configuration missing. See README for setup instructions.');
+        return;
+    }
+
+    if (CONFIG.SUPABASE_URL === 'YOUR_SUPABASE_URL' || !CONFIG.SUPABASE_URL) {
+        showError('Please configure your Supabase URL in config.js');
+        return;
+    }
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    // Show loading state
     setLoading(true);
     hideError();
 
     try {
-        // Sign in with Supabase
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password
+        // Call Supabase Auth REST API directly
+        const response = await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': CONFIG.SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
         });
 
-        if (error) {
-            throw error;
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error_description || data.msg || 'Login failed');
         }
 
-        if (!data.session) {
-            throw new Error('No session returned from login');
+        if (!data.access_token) {
+            throw new Error('No access token received');
         }
 
-        // Get JWT token
-        const token = data.session.access_token;
-        const user = data.user;
+        console.log('[Auth] Login successful:', data.user?.email);
 
-        console.log('[Auth] Login successful:', user.email);
-
-        // Store in Chrome storage
+        // Store JWT and user data in Chrome storage
         await chrome.storage.local.set({
-            jwt_token: token,
+            jwt_token: data.access_token,
+            refresh_token: data.refresh_token,
             user_data: {
-                id: user.id,
-                email: user.email,
-                created_at: user.created_at
+                id: data.user?.id,
+                email: data.user?.email,
+                created_at: data.user?.created_at
             }
         });
 
@@ -78,7 +74,7 @@ loginForm.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error('[Auth] Login error:', error);
-        showError(error.message || 'Login failed. Please try again.');
+        showError(error.message || 'Login failed. Please check your credentials.');
     } finally {
         setLoading(false);
     }
