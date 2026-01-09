@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 from app.services.supabase_db import (
     insert_step, get_step, list_steps,
-    update_step, delete_step
+    update_step, delete_step, get_workflow
 )
 
 router = APIRouter()
@@ -34,7 +34,16 @@ async def create_step(payload: dict, current_user = Depends(get_current_user)):
     if not payload.get("title"):
         raise HTTPException(status_code=400, detail="Step title is required")
     
-    step = insert_step(workflow_id, payload, created_by=current_user.get("user_id"))
+    # Include workflow_id in the step data
+    step_data = {
+        "workflow_id": workflow_id,
+        "title": payload.get("title"),
+        "description": payload.get("description", ""),
+        "status": payload.get("status", "pending"),
+        "order": payload.get("step_order") or payload.get("order", 0),
+    }
+    
+    step = insert_step(step_data, created_by=current_user.get("user_id"))
     return {"success": True, "step": step}
 
 
@@ -72,7 +81,7 @@ async def update_step_status_route(
     current_user = Depends(get_current_user),
 ):
     """Update step status."""
-    updated = update_step_status(step_id, payload.status, completed_by=current_user.get("user_id"))
+    updated = update_step(step_id, {"status": payload.status}, updated_by=current_user.get("user_id"))
     if not updated:
         raise HTTPException(status_code=404, detail="Step not found")
     return {"success": True, "step": updated}

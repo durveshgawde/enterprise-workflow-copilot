@@ -51,7 +51,7 @@ def sb_update(
 ) -> List[Dict[str, Any]]:
     """Update rows matching equality filters in `match`."""
     url = f"{BASE_URL}/{table}"
-    params = {f"{k}.eq": v for k, v in match.items()}
+    params = {k: f"eq.{v}" for k, v in match.items()}
     resp = requests.patch(
         url,
         headers=_headers("return=representation"),
@@ -65,7 +65,7 @@ def sb_update(
 def sb_delete(table: str, match: Dict[str, Any]) -> bool:
     """Delete rows matching equality filters in `match`."""
     url = f"{BASE_URL}/{table}"
-    params = {f"{k}.eq": v for k, v in match.items()}
+    params = {k: f"eq.{v}" for k, v in match.items()}
     resp = requests.delete(url, headers=_headers(), params=params)
     resp.raise_for_status()
     return True

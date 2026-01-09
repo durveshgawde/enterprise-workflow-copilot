@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.utils.jwt import get_current_user
-from app.services.in_memory import get_user, upsert_user
+from app.services.supabase_db import get_user, upsert_user
 
 router = APIRouter()
 

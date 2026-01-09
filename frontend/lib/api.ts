@@ -271,6 +271,15 @@ export const aiApi = {
   },
 
 
+  // Save AI-generated workflow with steps
+  saveWorkflow: async (data: { title: string; description: string; steps: Array<{ title: string; description: string; role?: string }> }) => {
+    console.log('Calling /ai/save-workflow with:', data)
+    const response = await api.post('/ai/save-workflow', data)
+    console.log('save-workflow response:', response.data)
+    return response
+  },
+
+
   // Refine step description
   refineStep: (data: { title: string; description: string }) =>
     api.post<{ refined: string }>('/ai/rewrite', data),

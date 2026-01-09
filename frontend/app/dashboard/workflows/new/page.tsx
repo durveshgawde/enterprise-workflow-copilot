@@ -32,13 +32,36 @@ export default function NewWorkflowPage() {
     setLoading(true)
     setError('')
     try {
+      // First generate the workflow from AI
       const sopResponse = await aiApi.generateSop({ text: aiText })
-      const workflowResponse = await workflowApi.create({
+      console.log('AI response:', sopResponse)
+
+      // Check if AI generation was successful
+      if (!sopResponse.data || !sopResponse.data.title) {
+        setError(sopResponse.data?.error || 'AI could not generate a workflow from this text. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      // Use the atomic save endpoint that handles workflow + steps together
+      const saveResponse = await aiApi.saveWorkflow({
         title: sopResponse.data.title,
+        description: sopResponse.data.description || '',
+        steps: sopResponse.data.steps || [],
       })
-      router.push(`/dashboard/workflows/${workflowResponse.data.id}`)
+
+      console.log('Save response:', saveResponse)
+
+      if (!saveResponse.data?.success) {
+        setError(saveResponse.data?.error || 'Failed to save workflow')
+        setLoading(false)
+        return
+      }
+
+      router.push(`/dashboard/workflows/${saveResponse.data.workflow_id}`)
     } catch (err: any) {
-      setError(err.message || 'Failed to generate workflow')
+      console.error('AI Create error:', err)
+      setError(err.response?.data?.error || err.message || 'Failed to generate workflow')
     } finally {
       setLoading(false)
     }
@@ -67,11 +90,10 @@ export default function NewWorkflowPage() {
         <div className="grid md:grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => setMode('manual')}
-            className={`p-6 border-2 rounded-lg text-center transition ${
-              mode === 'manual'
+            className={`p-6 border-2 rounded-lg text-center transition ${mode === 'manual'
                 ? 'border-blue-600 bg-blue-50'
                 : 'border-gray-300 hover:border-gray-400'
-            }`}
+              }`}
           >
             <h3 className="text-lg font-bold mb-2">Manual Create</h3>
             <p className="text-sm text-gray-600">Create workflow step by step</p>
@@ -79,11 +101,10 @@ export default function NewWorkflowPage() {
 
           <button
             onClick={() => setMode('ai')}
-            className={`p-6 border-2 rounded-lg text-center transition ${
-              mode === 'ai'
+            className={`p-6 border-2 rounded-lg text-center transition ${mode === 'ai'
                 ? 'border-blue-600 bg-blue-50'
                 : 'border-gray-300 hover:border-gray-400'
-            }`}
+              }`}
           >
             <h3 className="text-lg font-bold mb-2">✨ AI Generation</h3>
             <p className="text-sm text-gray-600">Generate from text using AI</p>

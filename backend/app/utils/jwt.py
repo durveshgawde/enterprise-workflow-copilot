@@ -8,7 +8,7 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Validate JWT and extract user info"""
+    """Validate JWT and extract user info, auto-create user in database if needed"""
     if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -27,6 +27,16 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token: no user_id",
             )
+
+        # Auto-create user in database if they don't exist
+        try:
+            from app.services.supabase_db import get_user, upsert_user
+            existing_user = get_user(user_id)
+            if not existing_user and email:
+                upsert_user(user_id, {"email": email})
+        except Exception as e:
+            # Don't fail the request if user creation fails, just log it
+            print(f"[JWT] Warning: Could not auto-create user: {e}")
 
         return {
             "user_id": user_id,

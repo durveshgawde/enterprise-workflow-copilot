@@ -61,6 +61,56 @@ async def convert_and_save(
         "steps_created": save_result.get("steps_created")
     }
 
+@router.post("/save-workflow")
+async def save_workflow(
+    payload: dict,
+    current_user = Depends(get_current_user)
+):
+    """Save an AI-generated workflow with all its steps.
+    
+    Expects: {
+        title: string,
+        description: string,
+        steps: [{title, description, role?}, ...]
+    }
+    """
+    try:
+        title = payload.get("title")
+        description = payload.get("description", "")
+        steps = payload.get("steps", [])
+        
+        print(f"[AI] save-workflow called: title='{title}', description='{description[:50]}...', steps={len(steps)}")
+        
+        if not title:
+            return {"success": False, "error": "Title is required"}
+        
+        workflow_data = {
+            "title": title,
+            "description": description,
+            "steps": steps
+        }
+        
+        save_result = save_workflow_to_db(
+            workflow_data,
+            None,  # organization_id - not required
+            current_user.get("user_id")
+        )
+        
+        print(f"[AI] save-workflow result: {save_result}")
+        
+        return {
+            "success": save_result.get("success"),
+            "workflow_id": save_result.get("workflow_id"),
+            "steps_created": save_result.get("steps_created"),
+            "error": save_result.get("error")
+        }
+    except Exception as e:
+        print(f"[AI] save-workflow error: {e}")
+        return {
+            "success": False,
+            "error": f"Failed to save workflow: {str(e)}"
+        }
+
 @router.post("/rewrite")
 async def rewrite(
     payload: RewriteRequest,

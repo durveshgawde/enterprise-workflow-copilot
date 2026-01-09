@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Preview</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <button id="backBtn" class="back-btn">← Back</button>
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Generated Workflow</span>
+            </div>
+        </div>
+
+        <!-- Preview Content -->
+        <div class="preview-content">
+            <div id="loadingState" class="loading-state">
+                <div class="spinner-large"></div>
+                <p>Loading workflow...</p>
+            </div>
+
+            <div id="workflowPreview" class="workflow-preview" style="display:none;">
+                <!-- Title -->
+                <div class="workflow-header">
+                    <h2 id="workflowTitle" class="workflow-title"></h2>
+                    <span class="badge badge-ai">AI Generated</span>
+                </div>
+
+                <!-- Description -->
+                <p id="workflowDescription" class="workflow-description"></p>
+
+                <!-- Steps -->
+                <div class="steps-section">
+                    <h3 class="section-title">Steps (<span id="stepCount">0</span>)</h3>
+                    <div id="stepsContainer" class="steps-container"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="preview-actions">
+                    <button id="saveBtn" class="btn btn-primary">
+                        <span class="btn-text">💾 Save to Dashboard</span>
+                        <span class="btn-loader" style="display:none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                    <button id="regenerateBtn" class="btn btn-secondary">
+                        🔄 Regenerate
+                    </button>
+                </div>
+
+                <!-- Status -->
+                <div id="saveStatus" class="save-status" style="display:none;"></div>
+            </div>
+
+            <div id="errorState" class="error-state" style="display:none;">
+                <div class="error-icon">⚠️</div>
+                <h3>No Workflow Found</h3>
+                <p>Please generate a workflow first</p>
+                <button id="goBackBtn" class="btn btn-secondary">Go Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../utils/storage.js"></script>
+    <script src="../config.js"></script>
+    <script src="../utils/api.js"></script>
+    <script src="preview.js"></script>
+</body>
+
+</html>

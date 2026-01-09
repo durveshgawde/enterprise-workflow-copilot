@@ -84,6 +84,11 @@ CREATE TABLE IF NOT EXISTS public.activity_logs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Migration: Drop FK constraint on comments.user_id to allow NULL values without requiring users table
+-- Run this if you get FK constraint errors:
+ALTER TABLE public.comments DROP CONSTRAINT IF EXISTS comments_user_id_fkey;
+ALTER TABLE public.comments ALTER COLUMN user_id DROP NOT NULL;
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_workflows_org ON public.workflows(organization_id);
 CREATE INDEX IF NOT EXISTS idx_workflows_created_by ON public.workflows(created_by);

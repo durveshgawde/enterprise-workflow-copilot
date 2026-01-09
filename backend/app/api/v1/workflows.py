@@ -28,10 +28,24 @@ class WorkflowUpdate(BaseModel):
 @router.get("/")
 async def list_workflows_route(org_id: Optional[str] = None, current_user = Depends(get_current_user)):
     """List workflows for an organization."""
+    import re
+    # UUID regex pattern
+    uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+    
+    # Only use org_id if it's a valid UUID, otherwise return all workflows
+    effective_org_id = None
+    if org_id and org_id.strip() and uuid_pattern.match(org_id.strip()):
+        effective_org_id = org_id.strip()
+    
+    print(f"[API] list_workflows called with org_id={org_id!r}, effective_org_id={effective_org_id!r}")
+    
+    workflows = list_workflows(effective_org_id)
+    print(f"[API] Returning {len(workflows)} workflows")
+    
     return {
         "success": True,
         "organization_id": org_id,
-        "workflows": list_workflows(org_id),
+        "workflows": workflows,
     }
 
 

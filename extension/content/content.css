@@ -1,0 +1,143 @@
+/**
+ * Content Script Styles
+ * Styles for selection mode UI
+ */
+
+/* Selection mode body class */
+body.workflow-selection-mode {
+  cursor: text !important;
+}
+
+body.workflow-selection-mode ::selection {
+  background-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Floating Selection Toolbar */
+#workflow-selection-toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(99, 102, 241, 0.15);
+  color: #fff;
+  animation: wst-slideIn 0.3s ease-out;
+}
+
+@keyframes wst-slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Toolbar Header */
+.wst-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.wst-icon {
+  font-size: 20px;
+}
+
+.wst-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Hint text */
+.wst-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 16px;
+}
+
+/* Selection Preview */
+.wst-selection-preview {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.wst-preview-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+}
+
+.wst-preview-text {
+  font-size: 13px;
+  color: #fff;
+  line-height: 1.5;
+  max-height: 100px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+/* Action Buttons */
+.wst-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.wst-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wst-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wst-btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+}
+
+.wst-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.wst-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wst-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Highlight for selected text */
+.workflow-highlight {
+  background-color: rgba(99, 102, 241, 0.3);
+  border-radius: 2px;
+  padding: 0 2px;
+}

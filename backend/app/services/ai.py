@@ -54,12 +54,21 @@ def generate_sop(raw_text: str) -> dict:
             contents=f"{SYSTEM_PROMPT}\n\nConvert this to a workflow:\n\n{raw_text}",
             config=types.GenerateContentConfig(
                 temperature=0.2,
-                max_output_tokens=2000,
+                max_output_tokens=4000,  # Increased from 2000 to avoid truncation
                 top_p=0.9,
             )
         )
         
         print(f"[AI] Response received")
+        
+        # Handle case where response.text is None (blocked/empty response)
+        if response.text is None:
+            print("[AI] Error: Response text is None (possibly blocked by safety filters)")
+            return {
+                "success": False,
+                "error": "AI returned empty response. This may be due to content safety filters."
+            }
+        
         content = response.text.strip()
         print(f"[AI] Raw response: {content[:200]}...")
         
@@ -69,8 +78,35 @@ def generate_sop(raw_text: str) -> dict:
         elif content.startswith("```"):
             content = content.replace("```", "").strip()
         
-        workflow_data = json.loads(content)
-        print(f"[AI] Parsed workflow: {workflow_data.get('title', 'No title')}")
+        # Try to parse JSON, with fallback for truncated responses
+        try:
+            workflow_data = json.loads(content)
+        except json.JSONDecodeError as parse_error:
+            print(f"[AI] JSON parse error: {parse_error}")
+            # Try to repair truncated JSON by closing any unclosed structures
+            repaired = content
+            # Count unclosed braces and brackets
+            open_braces = repaired.count('{') - repaired.count('}')
+            open_brackets = repaired.count('[') - repaired.count(']')
+            # Close any unclosed strings (if we're in a string, close it)
+            if repaired.count('"') % 2 == 1:
+                repaired += '"'
+            # Close brackets then braces
+            repaired += ']' * open_brackets
+            repaired += '}' * open_braces
+            try:
+                workflow_data = json.loads(repaired)
+                print(f"[AI] Repaired truncated JSON successfully")
+            except json.JSONDecodeError:
+                # Still failed, return error
+                return {
+                    "success": False,
+                    "error": f"AI returned incomplete JSON. Please try again with shorter or clearer text."
+                }
+        
+        print(f"[AI] Parsed workflow: title='{workflow_data.get('title', 'No title')}'")
+        print(f"[AI] Parsed workflow: description='{workflow_data.get('description', '')[:100]}...'")
+        print(f"[AI] Parsed workflow: steps count={len(workflow_data.get('steps', []))}")
         
         return {
             "success": True,
@@ -115,6 +151,13 @@ def rewrite_step(step_text: str, tone: str = "clear_enterprise") -> dict:
                 max_output_tokens=500,
             )
         )
+        
+        # Handle case where response.text is None
+        if response.text is None:
+            return {
+                "success": False,
+                "error": "AI returned empty response. This may be due to content safety filters."
+            }
         
         rewritten_text = response.text.strip()
         

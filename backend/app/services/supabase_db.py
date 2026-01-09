@@ -32,16 +32,19 @@ def insert_workflow(data: dict, created_by: Optional[str] = None) -> dict:
     org_id = data.get("organization_id") or data.get("org_id") or None
     
     payload = {
-        "title":data.get("title"),
+        "title": data.get("title"),
         "description": data.get("description", ""),
         "status": data.get("status", "draft"),
         "organization_id": org_id,
         "created_by": None,  # Temporarily disable FK check - user may not exist in users table
     }
     
+    print(f"[DB] Creating workflow: {payload}")
+    
     try:
         rows = sb_insert("workflows", payload)
         workflow = rows[0] if rows else None
+        print(f"[DB] Created workflow: {workflow}")
         
         # Log activity
         if workflow:
@@ -86,7 +89,9 @@ def list_workflows(org_id: Optional[str] = None) -> List[dict]:
             params["organization_id"] = f"eq.{org_id}"
         
         params["order"] = "updated_at.desc"
+        print(f"[DB] Listing workflows with params: {params}")
         rows = sb_select("workflows", params)
+        print(f"[DB] Found {len(rows)} workflows")
         
         # Add step count to each workflow
         for wf in rows:
@@ -173,9 +178,12 @@ def insert_step(data: dict, created_by: Optional[str] = None) -> dict:
         "order": data.get("order", 0),
     }
     
+    print(f"[DB] Creating step: {payload}")
+    
     try:
         rows = sb_insert("workflow_steps", payload)
         step = rows[0] if rows else None
+        print(f"[DB] Created step: {step}")
         
         if step:
             log_activity(
@@ -280,7 +288,7 @@ def insert_comment(data: dict, created_by: Optional[str] = None) -> dict:
     payload = {
         "workflow_id": data.get("workflow_id"),
         "step_id": data.get("step_id"),
-        "user_id": created_by,
+        "user_id": None,  # Set to None to avoid FK constraint issues with empty users table
         "content": data.get("content"),
     }
     
@@ -308,7 +316,7 @@ def list_comments(workflow_id: Optional[str] = None, step_id: Optional[str] = No
         return []
 
 
-def update_comment(comment_id: str, data: dict) -> Optional[dict]:
+def update_comment(comment_id: str, data: dict, updated_by: Optional[str] = None) -> Optional[dict]:
     """Update a comment."""
     try:
         payload = {
@@ -322,7 +330,7 @@ def update_comment(comment_id: str, data: dict) -> Optional[dict]:
         return None
 
 
-def delete_comment(comment_id: str) -> bool:
+def delete_comment(comment_id: str, deleted_by: Optional[str] = None) -> bool:
     """Delete a comment."""
     try:
         sb_delete("comments", {"id": comment_id})

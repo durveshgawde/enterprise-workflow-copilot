@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow AI Generator</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">Workflow AI</span>
+                </div>
+                <button id="logoutBtn" class="icon-btn" title="Logout">
+                    <span>🚪</span>
+                </button>
+            </div>
+            <div id="userInfo" class="user-info">
+                <span id="userEmail" class="user-email">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="popup-content">
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <h3 class="section-title">Extract Content</h3>
+                <div class="action-grid">
+                    <button id="selectionModeBtn" class="action-btn">
+                        <span class="action-icon">✂️</span>
+                        <span class="action-text">Selection Mode</span>
+                        <span class="action-hint">Choose specific text</span>
+                    </button>
+                    <button id="fullPageBtn" class="action-btn">
+                        <span class="action-icon">📄</span>
+                        <span class="action-text">Full Page</span>
+                        <span class="action-hint">Extract everything</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Type Toggles -->
+            <div class="options-section">
+                <h3 class="section-title">Include</h3>
+                <div class="toggle-grid">
+                    <label class="toggle-item">
+                        <input type="checkbox" id="includeEmail" checked>
+                        <span>📧 Email</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="includeForms" checked>
+                        <span>📝 Forms</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="includeTables" checked>
+                        <span>📊 Tables</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="includeDocument" checked>
+                        <span>📃 Document</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Status Display -->
+            <div id="statusSection" class="status-section" style="display:none;">
+                <div id="statusContent" class="status-content"></div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="links-section">
+                <a id="dashboardLink" href="http://localhost:3000/workflows" target="_blank" class="link-btn">
+                    <span>🗂️</span>
+                    <span>Open Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../utils/storage.js"></script>
+    <script src="../config.js"></script>
+    <script src="../utils/api.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>

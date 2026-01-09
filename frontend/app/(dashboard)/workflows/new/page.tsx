@@ -88,17 +88,34 @@ export default function NewWorkflowPage() {
     try {
       console.log('Calling AI API with text:', aiText.substring(0, 100) + '...')
       const response = await aiApi.generateSop({ text: aiText })
-      console.log('AI API response:', response)
+      console.log('=== AI API Response Debug ===')
+      console.log('Full response:', response)
+      console.log('response.data:', response.data)
 
       // Check if we got a valid workflow response
       const workflowData = response.data
 
+      console.log('workflowData:', workflowData)
+      console.log('workflowData.title:', workflowData?.title)
+      console.log('workflowData.description:', workflowData?.description)
+      console.log('workflowData.steps:', workflowData?.steps)
+      console.log('workflowData.steps?.length:', workflowData?.steps?.length)
+
       if (workflowData && typeof workflowData === 'object' && workflowData.title) {
-        console.log('Valid workflow received:', workflowData.title)
+        console.log('Valid workflow received!')
+        console.log('Setting generatedWorkflow with:', {
+          title: workflowData.title,
+          description: workflowData.description,
+          steps: workflowData.steps,
+          stepsCount: workflowData.steps?.length || 0
+        })
+
         setGeneratedWorkflow(workflowData as GeneratedWorkflow)
         setPreviewTitle(workflowData.title)
         setPreviewDescription(workflowData.description || '')
         setShowPreview(true)
+
+        console.log('Preview should now be visible!')
       } else if (response.data?.error) {
         setError(`AI Error: ${response.data.error}`)
       } else {
@@ -127,41 +144,37 @@ export default function NewWorkflowPage() {
     setError('')
 
     try {
-      // Create workflow with edited title/description
-      const workflowResponse = await workflowApi.create({
-        title: previewTitle || generatedWorkflow.title,
-        description: previewDescription || generatedWorkflow.description,
+      // Use the edited title/description or fall back to AI-generated ones
+      const finalTitle = previewTitle || generatedWorkflow.title
+      const finalDescription = previewDescription || generatedWorkflow.description || ''
+      const finalSteps = generatedWorkflow.steps || []
+
+      console.log('=== Saving AI Workflow ===')
+      console.log('Title:', finalTitle)
+      console.log('Description:', finalDescription)
+      console.log('Steps count:', finalSteps.length)
+
+      // Use the new atomic save endpoint
+      const response = await aiApi.saveWorkflow({
+        title: finalTitle,
+        description: finalDescription,
+        steps: finalSteps,
       })
 
-      console.log('Workflow create response:', workflowResponse)
+      console.log('Save response:', response.data)
 
-      const workflowId = workflowResponse.data?.id || workflowResponse.data?.workflow_id
-
-      if (!workflowId) {
-        setError('Failed to create workflow - no ID returned')
+      if (!response.data?.success) {
+        setError(response.data?.error || 'Failed to save workflow')
         setLoading(false)
         return
       }
 
-      // Create all steps
-      const steps = generatedWorkflow.steps || []
-      console.log(`Creating ${steps.length} steps...`)
+      const workflowId = response.data.workflow_id
+      const stepsCreated = response.data.steps_created || 0
 
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i]
-        try {
-          await stepApi.create(workflowId, {
-            title: step.title,
-            description: step.description,
-            step_order: i,
-            status: 'pending',
-          })
-        } catch (stepErr) {
-          console.error(`Failed to create step ${i}:`, stepErr)
-        }
-      }
+      console.log(`Workflow ${workflowId} created with ${stepsCreated} steps`)
+      setSuccess(`Workflow created with ${stepsCreated} steps!`)
 
-      setSuccess(`Workflow created with ${steps.length} steps!`)
       setTimeout(() => {
         router.push(`/dashboard/workflows/${workflowId}`)
       }, 1000)
@@ -215,8 +228,8 @@ export default function NewWorkflowPage() {
             <button
               onClick={() => setMode('manual')}
               className={`p-6 border-2 rounded-xl text-center transition ${mode === 'manual'
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                ? 'border-blue-600 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
                 }`}
             >
               <FileText size={32} className="mx-auto mb-3 text-blue-600" />
@@ -227,8 +240,8 @@ export default function NewWorkflowPage() {
             <button
               onClick={() => setMode('ai')}
               className={`p-6 border-2 rounded-xl text-center transition ${mode === 'ai'
-                  ? 'border-purple-600 bg-purple-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                ? 'border-purple-600 bg-purple-50'
+                : 'border-gray-200 hover:border-gray-300'
                 }`}
             >
               <Sparkles size={32} className="mx-auto mb-3 text-purple-600" />

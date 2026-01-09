@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { workflowApi, stepApi, commentApi, activityApi } from '@/lib/api'
 import { Workflow, WorkflowStep, Comment, ActivityLog } from '@/lib/types'
-import { ChevronDown, MessageCircle, History, Plus, X, Check, Trash2, Edit, Send } from 'lucide-react'
+import { ChevronDown, MessageCircle, History, Plus, X, Check, Trash2, Edit, Send, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function WorkflowDetailPage() {
@@ -226,6 +226,15 @@ export default function WorkflowDetailPage() {
 
   return (
     <div>
+      {/* Back Button */}
+      <Link
+        href="/dashboard/workflows"
+        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-medium"
+      >
+        <ArrowLeft size={20} />
+        Back to Workflows
+      </Link>
+
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg flex justify-between items-center">
           <span>{error}</span>
