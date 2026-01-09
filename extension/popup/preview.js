@@ -121,7 +121,7 @@ saveBtn.addEventListener('click', async () => {
                     ? CONFIG.DASHBOARD_URL : 'http://localhost:3000';
                 setTimeout(() => {
                     chrome.tabs.create({
-                        url: dashboardUrl + '/workflows'
+                        url: dashboardUrl + '/dashboard/workflows'
                     });
                     window.close();
                 }, 1500);

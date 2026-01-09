@@ -20,7 +20,7 @@ const includeDocument = document.getElementById('includeDocument');
 
 // Set dashboard link from config
 if (typeof CONFIG !== 'undefined' && CONFIG.DASHBOARD_URL) {
-    dashboardLink.href = CONFIG.DASHBOARD_URL + '/workflows';
+    dashboardLink.href = CONFIG.DASHBOARD_URL + '/dashboard/workflows';
 }
 
 // Check authentication on load

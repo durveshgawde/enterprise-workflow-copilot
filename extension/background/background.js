@@ -194,7 +194,7 @@ async function generateAndSaveWorkflow(rawText) {
             success: true,
             workflow_id: saveResult.workflow_id,
             workflow: workflow,
-            dashboardUrl: 'http://localhost:3000/workflows'
+            dashboardUrl: 'http://localhost:3000/dashboard/workflows'
         };
 
     } catch (error) {

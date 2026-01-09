@@ -124,7 +124,7 @@ const SelectionMode = {
 
                         // Open dashboard after short delay
                         setTimeout(() => {
-                            window.open(result.dashboardUrl || 'http://localhost:3000/workflows', '_blank');
+                            window.open(result.dashboardUrl || 'http://localhost:3000/dashboard/workflows', '_blank');
                         }, 1000);
                     } else {
                         generateBtn.textContent = '❌ Failed';
