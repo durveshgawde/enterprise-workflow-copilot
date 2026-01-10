@@ -19,7 +19,7 @@ export default function WorkflowsPage() {
         <h1 className="text-3xl font-bold">Workflows</h1>
         <Link
           href="/dashboard/workflows/new"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 font-medium text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
         >
           <Plus size={20} />
           Create Workflow
@@ -71,13 +71,12 @@ export default function WorkflowsPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        workflow.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : workflow.status === 'completed'
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${workflow.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : workflow.status === 'completed'
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-gray-100 text-gray-800'
-                      }`}>
+                        }`}>
                         {workflow.status}
                       </span>
                     </td>
