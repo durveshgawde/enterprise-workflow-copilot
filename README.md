@@ -1,5 +1,5 @@
 # 🚀 Enterprise Workflow Copilot
- # **Browser Extension**
+**Browser Extension**
 
 An AI-powered workflow automation platform with a Chrome extension for capturing and managing business processes.
 
