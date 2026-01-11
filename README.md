@@ -42,16 +42,6 @@ An AI-powered workflow automation platform with a Chrome extension for capturing
 
 ---
 
-## 🖥️ Screenshots
-
-### Dashboard
-> Manage all your workflows in one place
-
-### Chrome Extension
-> Capture workflows directly from your browser
-
-### Workflow Viewer
-> Step-by-step visualization with descriptions
 
 
 ## 📖 How to Use
