@@ -28,8 +28,8 @@ An AI-powered workflow automation platform with a Chrome extension for capturing
 - **Natural Language Input**: Describe workflows in plain English
 - **Smart Step Generation**: AI automatically creates detailed, actionable steps
 - **Context-Aware**: Extract content from web pages to generate relevant workflows
-- **Instant Save**: Generated workflows are saved directly to Supabase database
-- **Full Stack Integration**: Works seamlessly from Extension → Backend API → AI → Database
+- **Instant Save**: Generated workflows are saved directly to Supabase database and to the dashboard
+- **Full Stack Integration**: Works seamlessly from Extension → Backend API → AI → Database → Dashboard
 
 ---
 ## 🛠️ Tech Stack
