@@ -138,7 +138,7 @@ export default function DashboardLayout({
             {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
           <div className="flex items-center gap-3">
-
+            
             <Link
               href="/dashboard/settings"
               className="p-2.5 hover:bg-gray-100 rounded-xl transition text-gray-600"

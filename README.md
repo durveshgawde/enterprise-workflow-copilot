@@ -43,7 +43,42 @@ An AI-powered workflow automation platform with a Chrome extension for capturing
 
 ---
 
+## 🔌 Chrome Extension Setup
 
+### Installation
+
+1. **Configure credentials** - Copy the example config:
+   ```bash
+   cd extension
+   cp config.example.js config.js
+   ```
+
+2. **Edit `config.js`** with your settings:
+   ```javascript
+   const CONFIG = {
+     SUPABASE_URL: 'https://your-project.supabase.co',
+     SUPABASE_ANON_KEY: 'your-anon-key-here',
+     API_BASE_URL: 'http://localhost:8000/api/v1',  // or your deployed backend
+     DASHBOARD_URL: 'http://localhost:3000'         // or your deployed frontend
+   };
+   ```
+
+3. **Load in Chrome**:
+   - Navigate to `chrome://extensions`
+   - Enable **Developer mode** (toggle top-right)
+   - Click **Load unpacked** → Select the `extension` folder
+
+### Using the Extension
+
+| Mode | How to Use |
+|------|------------|
+| **Selection Mode** | Highlight text on any page → Generate workflow from selection |
+| **Full Page** | Extract all content (emails, forms, tables) → Generate workflow |
+| **AI Generate** | Describe your workflow in plain English → AI creates steps |
+
+Once saved, workflows appear in your dashboard under the selected organization.
+
+---
 
 ## 📖 How to Use
 
@@ -71,6 +106,21 @@ An AI-powered workflow automation platform with a Chrome extension for capturing
 - **Edit**: Modify steps, descriptions, or status
 - **Delete**: Remove workflows you no longer need
 - **Filter**: Search by name or status
+
+---
+
+## 🏢 Multi-Tenancy & Data Isolation
+
+The platform uses **organization-based data isolation**:
+
+| Concept | Behavior |
+|---------|----------|
+| **Organizations** | Users create or join organizations (teams/companies) |
+| **Workflows** | Belong to an organization, visible to all org members |
+| **User Roles** | Members can have different roles (admin, member) within an org |
+| **Activity Tracking** | All actions are logged with user attribution |
+
+> **Note**: Users in the **same organization** see the **same workflows**. Users in **different organizations** have completely separate data.
 
 ---
 
